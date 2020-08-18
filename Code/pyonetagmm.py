@@ -14,6 +14,26 @@ headers = {
     'cookie': 'p_c_a_hist_2611=CntVPQRnUj0FIgI3B3ZWag%3D%3D' ' p_c_a_hist_2876=C3gLMlMyBzYHJ188BnJTPQ%3D%3D'
 }
 
+# 免费代理IP（百度找）,生成代理IP池
+'''
+如果你爬的是http://xxx.com这种，那么proxies就http有效;
+如果你爬的为https://www.xxx.com这类,那么proxies里面的https内容有效.
+'''
+proxy_list = [
+    '代理ip'
+]
+
+# 随机从ip池中选出一个ip
+proxy = random.choice(proxy_list)
+
+# 打印出随机选择的代理ip
+print("代理IP：" + proxy)
+
+proxies = {
+    'http': 'http://' + proxy,
+    'https': 'https://' + proxy,
+}
+
 siteFont = 'https://www.2meinv.com/tags-'
 siteBack = '.html'
 
@@ -31,9 +51,12 @@ link_count = 20  # 一页最多有20套
 
 # 获取网页信息
 def get_html(url):
-    html = requests.get(url, headers=headers).content.decode('utf-8')
-    # print(html)
-    return html
+    try:
+        html = requests.get(url, headers=headers).content.decode('utf-8')
+        # print(html)
+        return html
+    except requests.exceptions.ConnectionError as e:
+        print('Error', e.args)
 
 
 # 输入要爬取的页面的标签  例如https://www.2meinv.com/tags-大胸女神.html就输入大胸女神
@@ -45,8 +68,13 @@ def get_article_tag():
 # 解析该标签页下的页面数
 def parse_pages_html(html):
     etree_html = etree.HTML(html)
-    # 解析页数链接    观察多页可知最后一页都是：/html/body/div[3]/div/div[2]/div/a[6]
-    list_pages_url = etree_html.xpath('/html/body/div[3]/div/div[2]/div/a[6]')[0].text
+    # 解析页数链接
+    '''
+    观察多页可知有的是：/html/body/div[3]/div/div[2]/div/a[6]；
+    有的是 /html/body/div[3]/div/div[2]/div/a[4]；/html/body/div[3]/div/div[2]/div/a[3] ......
+    因为最大页数不一样，变的是最后一个数字，无法写死，所以需要根据’下一页‘标签定位到 最后一页
+    '''
+    list_pages_url = etree_html.xpath('/html/body/div[3]/div/div[2]/div/a[last()-1]')[0].text
     # 需要返回的数值为int型，str 转 int
     pages_num = int(list_pages_url)
     # print(type(pages_num))
@@ -233,6 +261,8 @@ def main():
                 # print(links_url1)
                 img_url = parse_img_html(links_url1)
                 save_img(path, img_url)
+    print("下载完成啦！！！退出程序...")
+    sys.exit(0)
 
 
 if __name__ == '__main__':
