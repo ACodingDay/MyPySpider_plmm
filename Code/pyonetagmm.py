@@ -3,6 +3,7 @@ from lxml import etree  # xpath语法解析所用
 import os  # 操作系统文件所用
 import time  # 避免访问频繁，保证睡眠
 from collections import Counter  # 统计list中某一元素的个数
+import random   # 随机选择一个代理，不用代理则不需要导入
 
 # 用于爬取爱美女网站某一个的标签下的全部套图（分页）
 
